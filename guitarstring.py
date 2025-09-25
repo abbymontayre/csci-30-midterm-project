@@ -10,7 +10,10 @@ class GuitarString:
         # create a guitar string of the given frequency, using a sampling rate of 44100 Hz
         self.capacity = ceil(SAMP_RATE / frequency)
         self.buffer = RingBuffer(self.capacity)
-        self._ticks = 0  
+        self._ticks = 0
+        for x in range(self.capacity):
+            self.buffer.enqueue(0)
+            
 
     @classmethod
     def make_from_array(cls, init: list[int]):

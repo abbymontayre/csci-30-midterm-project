@@ -39,6 +39,9 @@ if __name__ == '__main__':
                      GuitarString(CONCERT_C2), GuitarString(CONCERT_C2_SHARP), GuitarString(CONCERT_D2),
                      GuitarString(CONCERT_D2_SHARP), GuitarString(CONCERT_E2)]  
 
+    #Create string_status (active = true; inactive = false) to match with GuitarStrings
+    string_active = [False] * len(GuitarStrings)
+
     n_iters = 0
     while True:
         # it turns out that the bottleneck is in polling for key events
@@ -54,55 +57,78 @@ if __name__ == '__main__':
             key = stdkeys.next_key_typed()
             if key == 'q':
                 GuitarStrings[0].pluck()
+                string_active[0] = True
             elif key == '2':
                 GuitarStrings[1].pluck()
+                string_active[1] = True
             elif key == 'w':
                 GuitarStrings[2].pluck()
+                string_active[2] = True
             elif key == 'e':
                 GuitarStrings[3].pluck()
+                string_active[3] = True
             elif key == '4':
                 GuitarStrings[4].pluck()
+                string_active[4] = True
             elif key == 'r':
                 GuitarStrings[5].pluck()
+                string_active[5] = True
             elif key == '5':
                 GuitarStrings[6].pluck()
+                string_active[6] = True
             elif key == 't':
                 GuitarStrings[7].pluck()
+                string_active[7] = True
             elif key == 'y':
                 GuitarStrings[8].pluck()
+                string_active[8] = True
             elif key == '7':
                 GuitarStrings[9].pluck()
+                string_active[9] = True
             elif key == 'u':
                 GuitarStrings[10].pluck()
+                string_active[10] = True
             elif key == '8':
                 GuitarStrings[11].pluck()
+                string_active[11] = True
             elif key == 'i':
                 GuitarStrings[12].pluck()
+                string_active[12] = True
             elif key == '9':
                 GuitarStrings[13].pluck()
+                string_active[13] = True
             elif key == 'o':
                 GuitarStrings[14].pluck()
+                string_active[14] = True
             elif key == 'p':
                 GuitarStrings[15].pluck()
+                string_active[15] = True
             elif key == '-':
                 GuitarStrings[16].pluck()
+                string_active[16] = True
             elif key == '[':
                 GuitarStrings[17].pluck()
+                string_active[17] = True
             elif key == '=':
                 GuitarStrings[18].pluck()
+                string_active[18] = True
             elif key == ']':
                 GuitarStrings[19].pluck()
+                string_active[19] = True
 
         # compute the superposition of samples, only for audible strings
         threshold = 1e-4
-        sample = sum(
-            string.sample() for string in GuitarStrings
-            if abs(string.sample()) > threshold
-        )
+        sample = 0.0
+
+        for x in range(len(GuitarStrings)):
+            if string_active[x]:
+                sample += GuitarStrings[x].sample()
+
+            # advance the simulation of each active guitar string by one step
+            GuitarStrings[x].tick()
+
+            if abs(GuitarStrings[x].sample()) < threshold:
+                string_active[x] = False
 
         # play the sample on standard audio
         play_sample(sample)
-
-        # advance the simulation of each guitar string by one step
-        for string in GuitarStrings:
-            string.tick()
