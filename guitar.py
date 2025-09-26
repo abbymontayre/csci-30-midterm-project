@@ -17,8 +17,9 @@ if __name__ == '__main__':
     GuitarStrings = [GuitarString(220 * (1.059463**i)) for i in range(20)]
     key_to_string = dict(zip(keys, range(20)))
     
-    # List to track only the strings that have been plucked
-    active_strings = []
+    # Sets to track only the strings that have been plucked, and those deemed inactive
+    active_strings = set()
+    inactive_strings = set()
 
     n_iters = 0
     while True:
@@ -38,7 +39,7 @@ if __name__ == '__main__':
                 string.pluck()
                 # Add to active strings if not already there
                 if string not in active_strings:
-                    active_strings.append(string)
+                    active_strings.add(string)
 
         # compute the superposition of samples from active strings only
         sample = sum(string.sample() for string in active_strings)
@@ -48,12 +49,21 @@ if __name__ == '__main__':
         play_sample(sample)
 
         #takes care of removing strings that are quiet
-        i = 0
-        while i < len(active_strings):
-            string = active_strings[i]
+        for string in active_strings:
             string.tick()
-            # Remove string from active list if it's quiet enough
             if abs(string.sample()) < 1e-10:
-                active_strings.pop(i)
-            else:
-                i += 1
+                inactive_strings.add(string)
+
+        active_strings -= inactive_strings
+        inactive_strings.clear()
+
+        #ORIGINAL LIST STRAT commented out nalang muna
+        # i = 0
+        # while i < len(active_strings):
+        #     string = active_strings[i]
+        #     string.tick()
+        #     # Remove string from active list if it's quiet enough
+        #     if abs(string.sample()) < 1e-10:
+        #         active_strings.remove(i)
+        #     else:
+        #         i += 1er2w
