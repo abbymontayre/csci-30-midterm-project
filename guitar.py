@@ -15,6 +15,9 @@ if __name__ == '__main__':
 
     # Create GuitarString objects for each note
     GuitarStrings = [GuitarString(freq) for freq in frequencies]  
+    
+    # List to track only the strings that have been plucked
+    active_strings = []
 
     # dictionary mapping keys to guitar string indices
     key_to_string = {
@@ -54,21 +57,29 @@ if __name__ == '__main__':
         if stdkeys.has_next_key_typed():
             key = stdkeys.next_key_typed()
             if key in key_to_string:
-                GuitarStrings[key_to_string[key]].pluck()
+                string_index = key_to_string[key]
+                string = GuitarStrings[string_index]
+                string.pluck()
+                # Add to active strings if not already there
+                if string not in active_strings:
+                    active_strings.append(string)
 
-        # compute the superposition of samples, only for audible strings
-        threshold = 1e-4
-        sample = sum(
-            string.sample() for string in GuitarStrings
-            if abs(string.sample()) > threshold
-        )
+        # compute the superposition of samples from active strings only
+        sample = sum(string.sample() for string in active_strings)
         
-        # Simple scaling to prevent overflow
+        # Always apply consistent scaling to prevent overflow and maintain volume consistency
         sample = sample * 0.5
-
         # play the sample on standard audio
         play_sample(sample)
 
-        # advance the simulation of each guitar string by one step
-        for string in GuitarStrings:
+        # advance the simulation only for active strings and remove quiet ones
+        strings_to_remove = []
+        for string in active_strings:
             string.tick()
+            # Remove string from active list if it's quiet enough (much lower threshold)
+            if abs(string.sample()) < 1e-10:
+                strings_to_remove.append(string)
+        
+        # Remove quiet strings from active list
+        for string in strings_to_remove:
+            active_strings.remove(string)
