@@ -99,6 +99,9 @@ if __name__ == '__main__':
             string.sample() for string in GuitarStrings
             if abs(string.sample()) > threshold
         )
+        
+        # Prevent overflow by clipping the sample to valid audio range
+        sample = max(-1.0, min(1.0, sample))
 
         # play the sample on standard audio
         play_sample(sample)
