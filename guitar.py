@@ -42,7 +42,13 @@ if __name__ == '__main__':
 
         # compute the superposition of samples from active strings only
         sample = sum(string.sample() for string in active_strings)
-        sample = sample * 0.5 #for some reason when I do this directly on to line 44, it crashes immediately
+        
+        # prevents overflow and chooses between prioritizing volumee or preventing overflow
+        if len(active_strings) > 0:
+            # Use the larger of: division by active strings, or fixed 0.3 scaling
+            dynamic_scale = 1.0 / len(active_strings)
+            fixed_scale = 0.3
+            sample = sample * max(dynamic_scale, fixed_scale)
        
         # play the sample on standard audio
         play_sample(sample)
