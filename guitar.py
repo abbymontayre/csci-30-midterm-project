@@ -8,40 +8,17 @@ if __name__ == '__main__':
     # initialize window
     stdkeys.create_window()
 
-    # Define frequencies for the notes using chromatic scale
+    # Create GuitarString objects and key mapping in one integrated structure
     # 1.059463 is the 12th root of 2 (equal temperament tuning)
-    CONCERT_A = 220
-    frequencies = [CONCERT_A * (1.059463**i) for i in range(20)]
-
-    # Create GuitarString objects for each note
-    GuitarStrings = [GuitarString(freq) for freq in frequencies]  
+    keys = ['q', '2', 'w', 'e', '4', 'r', '5', 't', 'y', '7', 'u', '8', 'i', '9', 'o', 'p', '-', '[', '=', ']']
+    notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A2', 'A2#', 'B2', 'C2', 'C2#', 'D2', 'D2#', 'E2']
+    
+    # Create GuitarString objects and key mapping
+    GuitarStrings = [GuitarString(220 * (1.059463**i)) for i in range(20)]
+    key_to_string = dict(zip(keys, range(20)))
     
     # List to track only the strings that have been plucked
     active_strings = []
-
-    # dictionary mapping keys to guitar string indices
-    key_to_string = {
-        'q': 0,   # A
-        '2': 1,   # A#
-        'w': 2,   # B
-        'e': 3,   # C
-        '4': 4,   # C#
-        'r': 5,   # D
-        '5': 6,   # D#
-        't': 7,   # E
-        'y': 8,   # F
-        '7': 9,   # F#
-        'u': 10,  # G
-        '8': 11,  # G#
-        'i': 12,  # A2
-        '9': 13,  # A2#
-        'o': 14,  # B2
-        'p': 15,  # C2
-        '-': 16,  # C2#
-        '[': 17,  # D2
-        '=': 18,  # D2#
-        ']': 19   # E2
-    }
 
     n_iters = 0
     while True:
@@ -57,8 +34,7 @@ if __name__ == '__main__':
         if stdkeys.has_next_key_typed():
             key = stdkeys.next_key_typed()
             if key in key_to_string:
-                string_index = key_to_string[key]
-                string = GuitarStrings[string_index]
+                string = GuitarStrings[key_to_string[key]]
                 string.pluck()
                 # Add to active strings if not already there
                 if string not in active_strings:
@@ -66,20 +42,18 @@ if __name__ == '__main__':
 
         # compute the superposition of samples from active strings only
         sample = sum(string.sample() for string in active_strings)
-        
-        # Always apply consistent scaling to prevent overflow and maintain volume consistency
-        sample = sample * 0.5
+        sample = sample * 0.5 #for some reason when I do this directly on to line 44, it crashes immediately
+       
         # play the sample on standard audio
         play_sample(sample)
 
-        # advance the simulation only for active strings and remove quiet ones
-        strings_to_remove = []
-        for string in active_strings:
+        #takes care of removing strings that are quiet
+        i = 0
+        while i < len(active_strings):
+            string = active_strings[i]
             string.tick()
-            # Remove string from active list if it's quiet enough (much lower threshold)
+            # Remove string from active list if it's quiet enough
             if abs(string.sample()) < 1e-10:
-                strings_to_remove.append(string)
-        
-        # Remove quiet strings from active list
-        for string in strings_to_remove:
-            active_strings.remove(string)
+                active_strings.pop(i)
+            else:
+                i += 1
