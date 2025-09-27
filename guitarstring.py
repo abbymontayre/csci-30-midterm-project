@@ -7,7 +7,8 @@ DECAY = 0.996
 
 class GuitarString:
     def __init__(self, frequency: float):
-        # create a guitar string of the given frequency, using a sampling rate of 44100 Hz
+        # create a guitar string of the given frequency,
+        # using a sampling rate of 44100 Hz 
         self.capacity = ceil(SAMP_RATE / frequency)
         self.buffer = RingBuffer(self.capacity)
         self._ticks = 0
@@ -15,11 +16,9 @@ class GuitarString:
             self.buffer.enqueue(0)
     @classmethod
     def make_from_array(cls, init: list[int]):
-        # create a guitar string whose size and initial values are given by the array `init`
-        
-        # create GuitarString object with placeholder freq
+        # create a guitar string whose size and initial values are
+        # given by the array
         stg = cls(1000)  
-
         stg.capacity = len(init)
         stg.buffer = RingBuffer(stg.capacity)
         for x in init:
@@ -33,7 +32,7 @@ class GuitarString:
             self.buffer.enqueue(random.uniform(-0.5, 0.5))
 
     def tick(self):
-        # advance the simulation one time step by applying the Karplus--Strong update
+        # advance the simulation one time step
         first = self.buffer.dequeue()
         second = self.buffer.peek()
         new_value = DECAY * 0.5 * (first + second)

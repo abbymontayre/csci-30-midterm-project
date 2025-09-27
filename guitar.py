@@ -9,7 +9,7 @@ if __name__ == '__main__':
     stdkeys.create_window()
 
     keyboard = "q2we4r5ty7u8i9op-[=]"
-    GuitarStrings = {keyboard[i]: GuitarString(220 * (1.059463**i)) for i in range(len(keyboard))}
+    GuitarStrings = {keyboard[i]: GuitarString(440 * (1.059463**(i-12))) for i in range(len(keyboard))}
     
     # Set to track only the strings that have been plucked
     active_strings = set()
