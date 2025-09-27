@@ -7,7 +7,6 @@ import stdkeys
 if __name__ == '__main__':
     # initialize window
     stdkeys.create_window()
-
     keyboard = "q2we4r5ty7u8i9op-[=]"
     GuitarStrings = {keyboard[i]: GuitarString(440 * (1.059463**(i-12))) for i in range(len(keyboard))}
     
@@ -27,7 +26,8 @@ if __name__ == '__main__':
         # check if the user has typed a key; if so, process it
         if stdkeys.has_next_key_typed():
             key = stdkeys.next_key_typed()
-            if key in GuitarStrings:
+                
+            if key in keyboard and key in GuitarStrings:
                 string = GuitarStrings[key]
                 string.pluck()
                 # Add to active strings
